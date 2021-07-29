@@ -22,6 +22,7 @@ void Player::Update(float dt)
 	//fire
 	fireTimer -= dt;
 	if (fireTimer <= 0 && Core::Input::IsPressed(VK_SPACE)) {
+		scene->engine->Get<nc::AudioSystem>()->PlayAudio("LongShot");
 		fireTimer = fireRate;
 		nc::Transform t = transform;
 		t.scale = 4;

@@ -3,6 +3,6 @@
 namespace nc {
 	class Object 
 	{
-		//
+		
 	};
 }

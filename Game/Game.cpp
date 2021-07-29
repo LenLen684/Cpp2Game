@@ -10,7 +10,8 @@ void Game::Initialize()
 	scene->engine = engine.get();
 
 	engine->Get<nc::AudioSystem>()->AddAudio("explosion", "Explosion.wav");
-	engine->Get<nc::AudioSystem>()->AddAudio("GameOver", "GameOver.wav");
+	engine->Get<nc::AudioSystem>()->AddAudio("GameOver", "GameOver0.wav");
+	engine->Get<nc::AudioSystem>()->AddAudio("LongShot", "LongShoot.wav");
 	engine->Get<nc::AudioSystem>()->AddAudio("LongShot", "LongShoot.wav");
 	engine->Get<nc::AudioSystem>()->AddAudio("TriShot", "TriangleShot.wav");
 
@@ -29,7 +30,6 @@ void Game::Update(float dt)
 {
 	stateTimer += dt;
 	
-	//(this->*stateFn)(dt);
 	switch (state)
 	{
 	case Game::eState::Title:
@@ -43,37 +43,57 @@ void Game::Update(float dt)
 	{
 		score = 0;
 		lives = 5;
-		state = eState::StartLevel;
 		scene->RemoveAllActors();
+		pauseTimer = 1.5f;
+		state = eState::StartLevel;
+		scene->AddActor(std::make_unique<Player>(nc::Transform(nc::Vector2(400.0f, 300.0f), 0.0f, 5.0f), shape, 200.0f));
 	}
 		break;
 	case Game::eState::StartLevel:
-	{	
-		std::shared_ptr<nc::Shape> shape = std::make_shared<nc::Shape>();
-		shape->Load("PlayerDown.txt");
-
-		std::shared_ptr<nc::Shape> enemyshape = std::make_shared<nc::Shape>();
-		enemyshape->Load("Enemy1.txt");
-
-		std::vector<nc::Vector2> points = { { -5, -5 }, { 5, -5 }, { 0, 10 }, { -5, -5 } };
-		std::shared_ptr<nc::Shape> shape2 = std::make_shared<nc::Shape>(points, nc::Color(0, 1, 0));
-
-		scene->AddActor(std::make_unique<Player>(nc::Transform(nc::Vector2(400.0f, 300.0f), 0.0f, 5.0f), shape, 200.0f));
-		for (size_t i = 0; i < 2; i++)
-		{
-			scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)), nc::RandomRange(0.0f, nc::Tau), 4.0f), enemyshape, 50.0f));
+	{
+		if (pauseTimer <= 0) {
+			size_t j = 0;
+			size_t k = enemies[level][0] + enemies[level][1] + enemies[level][2];
+			for (size_t i = 0; i < k; i++)
+			{
+				if (i >= enemies[level][j] && j < 3) {
+					j++;
+				}
+				switch (j)
+				{
+				case 0:
+					scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)), nc::RandomRange(0.0f, nc::Tau), 4.0f), enemy1, 50.0f, false));
+					break;
+				case 1:
+					scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)), nc::RandomRange(0.0f, nc::Tau), 4.0f), enemy2, 50.0f, true, 3));
+					break;
+				case 2:
+					scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)), nc::RandomRange(0.0f, nc::Tau), 4.0f), enemy3, 50.0f, true, 5));
+					break;
+				default:
+					break;
+				}
+			}
+			state = eState::Game;
 		}
-		state = eState::Game;
+		else {
+			pauseTimer -= dt;
+		}
 	}
 		break;
 	case Game::eState::Game:
-		
+		if (scene->GetActors<Enemy>().size() < 1) {
+			level++;
+			state = eState::StartLevel;
+			pauseTimer = 1.5f;
+		}
 		break;
 	case Game::eState::GameOver:
-		engine->Get<nc::AudioSystem>()->PlayAudio("gameover");
 		if (Core::Input::IsPressed(VK_SPACE)) {
 			state = eState::StartGame;
 		}
+		break;
+	case Game::eState::GameWin:
 		break;
 	default:
 		break;
@@ -100,7 +120,13 @@ void Game::Draw(Core::Graphics& graphics)
 
 		break;
 	case Game::eState::StartLevel:
-
+		if (pauseTimer > 0) {
+			graphics.SetColor(nc::Color::orange);
+			char levelname = level + 1;
+			char buf[12];
+			snprintf(buf, 12, "Level %d", (level + 1));
+			graphics.DrawString(365, 300, (buf));
+		}
 		break;
 	case Game::eState::Game:
 
@@ -110,7 +136,12 @@ void Game::Draw(Core::Graphics& graphics)
 		graphics.DrawString(365, 300, "Game Over");
 		graphics.SetColor(nc::Color::cyan);
 		graphics.DrawString(330, 360, "Press Space to Restart");
-
+		break;
+	case Game::eState::GameWin:
+		graphics.SetColor(nc::Color::green);
+		graphics.DrawString(365, 300, "You Win");
+		graphics.SetColor(nc::Color::cyan);
+		graphics.DrawString(330, 360, "Press Space to Restart");
 		break;
 	default:
 		break;
@@ -137,8 +168,8 @@ void Game::UpdateLevelStart(float dt)
 	std::shared_ptr<nc::Shape> shape = std::make_shared<nc::Shape>();
 	shape->Load("PlayerDown.txt");
 
-	std::shared_ptr<nc::Shape> enemyshape = std::make_shared<nc::Shape>();
-	enemyshape->Load("Enemy1.txt");
+	std::shared_ptr<nc::Shape> enemy1 = std::make_shared<nc::Shape>();
+	enemy1->Load("Enemy1.txt");
 
 	std::vector<nc::Vector2> points = { { -5, -5 }, { 5, -5 }, { 0, 10 }, { -5, -5 } };
 	std::shared_ptr<nc::Shape> shape2 = std::make_shared<nc::Shape>(points, nc::Color(0, 1, 0));
@@ -146,7 +177,7 @@ void Game::UpdateLevelStart(float dt)
 	scene->AddActor(std::make_unique<Player>(nc::Transform(nc::Vector2(400.0f, 300.0f), 0.0f, 6.0f), shape, 200.0f));
 	for (size_t i = 0; i < 80; i++)
 	{
-		scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(400.0f, 300.0f), nc::RandomRange(0.0f, nc::Tau), 4.0f), enemyshape, 200.0f));
+		scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(400.0f, 300.0f), nc::RandomRange(0.0f, nc::Tau), 4.0f), enemy1, 200.0f));
 	}
 }
 
@@ -160,6 +191,7 @@ void Game::OnPlayerHit(const nc::Event& e)
 	//play the hit sound
 	lives -= 1;
 	if (lives == 0) {
+		engine->Get<nc::AudioSystem>()->PlayAudio("GameOver");
 		state = Game::eState::GameOver;
 		scene->GetActor<Player>()->destroy = true;
 		lives = 0;

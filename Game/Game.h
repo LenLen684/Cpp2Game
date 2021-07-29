@@ -9,7 +9,8 @@ public:
 		StartGame,
 		StartLevel,
 		Game,
-		GameOver
+		GameOver,
+		GameWin
 	};
 
 public:
@@ -38,6 +39,20 @@ private:
 
 	unsigned int score;
 	unsigned int lives;
-	unsigned int level;
+	int level;
+	float pauseTimer;
+	int enemies[5][3] = {
+		{5, 2 ,2},
+		{5, 4 ,3},
+		{4, 4, 4},
+		{3, 5, 5},
+		{5, 5, 5}
+	};
+
+	std::shared_ptr<nc::Shape> shape = std::make_shared<nc::Shape>("PlayerDown.txt");
+	std::shared_ptr<nc::Shape> enemy1 = std::make_shared<nc::Shape>("Enemy1.txt");
+	std::shared_ptr<nc::Shape> enemy2 = std::make_shared<nc::Shape>("Enemy2.txt");
+	std::shared_ptr<nc::Shape> enemy3 = std::make_shared<nc::Shape>("Enemy3.txt");
+	
 
 };

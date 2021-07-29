@@ -12,7 +12,7 @@ namespace nc
 	public:
 		Shape() {}
 		Shape(std::string fileName) {
-			Load("Projectile0.txt");
+			Load(fileName);
 		}
 		Shape(const std::vector<Vector2>& points, const Color& color) : points{points}, color{color} {}
 
