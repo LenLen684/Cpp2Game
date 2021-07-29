@@ -34,6 +34,7 @@ void Enemy::Update(float dt)
 				t.scale = 3.2f;
 				std::unique_ptr<Projectile> p = std::make_unique<Projectile>(t, projectile, 400.0f);
 				p->tag = "Enemy";
+				p->lifetime = 0.5f;
 				scene->AddActor(std::move(p));
 			}
 		}

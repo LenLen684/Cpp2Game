@@ -15,7 +15,7 @@ public:
 private:
 	float speed{300};
 	float fireTimer{ 0 };
-	float fireRate{ 0.7 };
+	float fireRate{ 1 };
 	bool follows{ false };
 	bool shoots{ false };
 	int health{ 1 };

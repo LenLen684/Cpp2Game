@@ -44,6 +44,7 @@ void Game::Update(float dt)
 	{
 		score = 0;
 		lives = 5;
+		level = 0;
 		scene->RemoveAllActors();
 		pauseTimer = 1.5f;
 		state = eState::StartLevel;
@@ -59,10 +60,12 @@ void Game::Update(float dt)
 		if (pauseTimer <= 0) {
 			size_t j = 0;
 			size_t k = enemies[level][0] + enemies[level][1] + enemies[level][2];
+			size_t l = 0;
 			for (size_t i = 0; i < k; i++)
 			{
-				if (i >= enemies[level][j] && j < 3) {
+				if (l >= enemies[level][j] && j < 3) {
 					j++;
+					l = 0;
 				}
 				switch (j)
 				{
@@ -78,6 +81,7 @@ void Game::Update(float dt)
 				default:
 					break;
 				}
+				l++;
 			}
 			state = eState::Game;
 		}
