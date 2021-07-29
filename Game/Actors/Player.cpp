@@ -26,7 +26,7 @@ void Player::Update(float dt)
 		fireTimer = fireRate;
 		nc::Transform t = transform;
 		t.scale = 4;
-		std::unique_ptr<Projectile> p = std::make_unique<Projectile>(t, shape1, 200.0f);
+		std::unique_ptr<Projectile> p = std::make_unique<Projectile>(t, shape1, 400.0f);
 		p->tag = "Player";
 		scene->AddActor(std::move(p));
 	}

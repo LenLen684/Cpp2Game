@@ -14,5 +14,5 @@ void Projectile::Update(float dt)
 	transform.position.y = nc::Wraparound(transform.position.y, 0.0f, 600.0f);
 
 	std::vector<nc::Color> colors = { nc::Color::white, nc::Color::red, nc::Color::green, nc::Color::blue, nc::Color::orange, nc::Color::yellow };
-	scene->engine->Get<nc::ParticleSystem>()->Create(transform.position, 1.4, 0.5, colors[nc::RandomRangeInt(0, colors.size())], 50);
+	/*scene->engine->Get<nc::ParticleSystem>()->Create(transform.position, 1.4, 0.5, colors[nc::RandomRangeInt(0, colors.size())], 50);*/
 }

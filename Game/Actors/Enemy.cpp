@@ -7,14 +7,35 @@
 void Enemy::Update(float dt)
 {
 	Actor::Update(dt);
+	Player* player = scene->GetActor<Player>();
 	if (follows) {
-		Player* player = scene->GetActor<Player>();
 		if (player) {
 			nc::Vector2 p1 = player->transform.position;
 			nc::Vector2 p2 = transform.position;
+			nc::Vector2 direction = { (p1.y - p2.y), -1 * (p1.x - p2.x) };
 			//nc::Vector2 direction = p1-p2;
-			nc::Vector2 direction = {(p1.y - p2.y), -1*(p1.x - p2.x)};
 			transform.rotation = nc::Lerp(transform.rotation, direction.Angle(), dt * speed);
+		}
+	}
+	if (shoots) {
+		if (player) {
+			nc::Vector2 p1 = player->transform.position;
+			nc::Vector2 p2 = transform.position;
+			nc::Vector2 direction = { (p1.y - p2.y), -1 * (p1.x - p2.x) };
+			nc::Vector2 forward = nc::Vector2::Rotate(nc::Vector2::right, transform.rotation);
+			float angle = nc::Vector2::Angle(direction.Normalized(), forward);
+
+			//fire
+			fireTimer -= dt;
+			if (fireTimer <= 0 && angle <= nc::QuarterPi) {
+				scene->engine->Get<nc::AudioSystem>()->PlayAudio("TriShot");
+				fireTimer = fireRate;
+				nc::Transform t = transform;
+				t.scale = 3.2f;
+				std::unique_ptr<Projectile> p = std::make_unique<Projectile>(t, projectile, 400.0f);
+				p->tag = "Enemy";
+				scene->AddActor(std::move(p));
+			}
 		}
 	}
 
@@ -30,7 +51,7 @@ void Enemy::OnCollision(Actor* actor)
 	if (dynamic_cast<Projectile*>(actor) && actor->tag == "Player") {
 		actor->destroy = true;
 		health--;
-		if (health >= 0) {
+		if (health <= 0) {
 			destroy = true;
 		}
 		scene->engine->Get<nc::ParticleSystem>()->Create(transform.position, 30, 1, nc::Color::white, 50);

@@ -11,7 +11,8 @@ void Game::Initialize()
 
 	engine->Get<nc::AudioSystem>()->AddAudio("explosion", "Explosion.wav");
 	engine->Get<nc::AudioSystem>()->AddAudio("GameOver", "GameOver0.wav");
-	engine->Get<nc::AudioSystem>()->AddAudio("LongShot", "LongShoot.wav");
+	engine->Get<nc::AudioSystem>()->AddAudio("LevelStart", "LevelStart.wav");
+	engine->Get<nc::AudioSystem>()->AddAudio("PlayerHit", "PlayerHit.wav");
 	engine->Get<nc::AudioSystem>()->AddAudio("LongShot", "LongShoot.wav");
 	engine->Get<nc::AudioSystem>()->AddAudio("TriShot", "TriangleShot.wav");
 
@@ -51,6 +52,10 @@ void Game::Update(float dt)
 		break;
 	case Game::eState::StartLevel:
 	{
+		if (level > 4) {
+			state = eState::GameWin;
+			break;
+		}
 		if (pauseTimer <= 0) {
 			size_t j = 0;
 			size_t k = enemies[level][0] + enemies[level][1] + enemies[level][2];
@@ -62,13 +67,13 @@ void Game::Update(float dt)
 				switch (j)
 				{
 				case 0:
-					scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)), nc::RandomRange(0.0f, nc::Tau), 4.0f), enemy1, 50.0f, false));
+					scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)), nc::RandomRange(0.0f, nc::Tau), 5.0f), enemy1, 110.0f, false));
 					break;
 				case 1:
-					scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)), nc::RandomRange(0.0f, nc::Tau), 4.0f), enemy2, 50.0f, true, 3));
+					scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)), nc::RandomRange(0.0f, nc::Tau), 4.0f), enemy2, 55.0f, true, 2));
 					break;
 				case 2:
-					scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)), nc::RandomRange(0.0f, nc::Tau), 4.0f), enemy3, 50.0f, true, 5));
+					scene->AddActor(std::make_unique<Enemy>(nc::Transform(nc::Vector2(nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)), nc::RandomRange(0.0f, nc::Tau), 6.0f), enemy3, 20.0f, true, 3, true));
 					break;
 				default:
 					break;
@@ -188,13 +193,15 @@ void Game::OnAddPoints(const nc::Event& e)
 
 void Game::OnPlayerHit(const nc::Event& e)
 {
-	//play the hit sound
 	lives -= 1;
 	if (lives == 0) {
 		engine->Get<nc::AudioSystem>()->PlayAudio("GameOver");
 		state = Game::eState::GameOver;
 		scene->GetActor<Player>()->destroy = true;
 		lives = 0;
+	}
+	else {
+		engine->Get<nc::AudioSystem>()->PlayAudio("PlayerHit");
 	}
 }
 

@@ -52,6 +52,8 @@ namespace nc
 
 		static float Distance(const Vector2& v1, const Vector2& v2);
 		static Vector2 Rotate(const Vector2& v, float radians);
+		static float Angle(const Vector2& v1, const Vector2& v2);
+		static float Dot(const Vector2& v1, const Vector2& v2);
 
 		friend std::istream& operator >> (std::istream& stream, Vector2& v);
 
@@ -99,5 +101,13 @@ namespace nc
 		float y = v.x * std::sin(radians) + v.y * std::cos(radians);
 
 		return { x, y };
+	}
+	inline float Vector2::Angle(const Vector2& v1, const Vector2& v2)
+	{
+		return std::acos(Dot(v1, v2));
+	}
+	inline float Vector2::Dot(const Vector2& v1, const Vector2& v2)
+	{
+		return v1.x * v2.x + v1.y *  v2.y;
 	}
 }
